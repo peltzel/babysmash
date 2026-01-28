@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Baby Smash! 🎨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e, #2d1b4e, #1b2838, #1a1a2e);
+            background-size: 400% 400%;
+            animation: gradient-shift 20s ease infinite;
+            font-family: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+        }
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        /* Animated background */
+        .bg-particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.6;
+            z-index: 0;
+        }
+        
+        @keyframes float-down {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(calc(100vh + 20px)) rotate(360deg); opacity: 0; }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .shape {
+            position: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: pop-in 0.3s ease-out, float 1.5s ease-in-out forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        @keyframes pop-in {
+            0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        @keyframes float {
+            0% { opacity: 1; }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-30px) scale(0.5); }
+        }
+        
+        .particle {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particle-burst 1s ease-out forwards;
+        }
+        
+        @keyframes particle-burst {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .trail {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: trail-fade 0.5s ease-out forwards;
+        }
+        
+        @keyframes trail-fade {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(0.3); opacity: 0; }
+        }
+        
+        #exit-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            z-index: 1000;
+            transition: opacity 0.3s;
+        }
+        
+        #exit-progress {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 24px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .fullscreen-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+        
+        .fullscreen-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Settings Panel */
+        #settings {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 30, 50, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            z-index: 2000;
+            min-width: 300px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        
+        #settings.active {
+            display: block;
+        }
+        
+        #settings h2 {
+            color: white;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .setting-row select, .setting-row input {
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        #settings button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #7c3aed;
+            border: none;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        #stats {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="canvas"></canvas>
+    
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">🖥️ Fullscreen</button>
+    
+    <div id="exit-hint">Press ESC 3 times to open settings</div>
+    <div id="exit-progress"></div>
+    
+    <!-- Cute friend that appears randomly -->
+    <div id="friend" style="display:none; position:fixed; font-size:80px; z-index:100; transition: all 0.5s ease; pointer-events:none;">👾</div>
+    
+    <!-- Fullscreen recovery notice -->
+    <div id="fullscreen-notice" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.9); z-index:3000; justify-content:center; align-items:center; flex-direction:column; color:white; font-size:24px; cursor:pointer;">
+        <div style="font-size:60px; margin-bottom:20px;">👶</div>
+        <div>Tap anywhere to continue playing!</div>
+        <div style="font-size:14px; margin-top:10px; opacity:0.6;">Pro tip: Use Guided Access on iPad for full lockdown</div>
+    </div>
+    
+    <div id="settings">
+        <h2>👶 Baby Smash Settings</h2>
+        <div class="setting-row">
+            <span>Theme</span>
+            <select id="theme-select" onchange="setTheme(this.value)">
+                <option value="rainbow">🌈 Rainbow</option>
+                <option value="ocean">🌊 Ocean</option>
+                <option value="forest">🌲 Forest</option>
+                <option value="space">🚀 Space</option>
+                <option value="highcontrast">⬛ High Contrast</option>
+            </select>
+        </div>
+        <div class="setting-row">
+            <span>Sound</span>
+            <select id="sound-select" onchange="soundEnabled = this.value !== 'off'">
+                <option value="off">🔇 Off</option>
+                <option value="notes" selected>🎵 Musical Notes</option>
+                <option value="pop">🎈 Pop Sounds</option>
+            </select>
+        </div>
+        <div class="setting-row">
+            <span>Shape Size</span>
+            <select id="size-select" onchange="setSize(this.value)">
+                <option value="small">Small</option>
+                <option value="medium" selected>Medium</option>
+                <option value="large">Large</option>
+            </select>
+        </div>
+        <div class="setting-row">
+            <span>Background</span>
+            <select id="bg-select" onchange="setBgTheme(this.value)">
+                <option value="stars">⭐ Twinkle Stars</option>
+                <option value="space">✨ Space Sparkles</option>
+                <option value="snow">❄️ Snowfall</option>
+                <option value="bubbles">🫧 Bubbles</option>
+                <option value="hearts">💖 Hearts</option>
+            </select>
+        </div>
+        <div id="stats">
+            <div>Keys pressed: <span id="key-count">0</span></div>
+            <div>Clicks: <span id="click-count">0</span></div>
+            <div>Session time: <span id="session-time">0:00</span></div>
+        </div>
+        <button onclick="closeSettings()">Resume Playing</button>
+        <button onclick="exitApp()" style="background: #dc2626; margin-top: 10px;">🚪 Exit to Browser</button>
+        <p style="color: rgba(255,255,255,0.4); font-size: 10px; text-align: center; margin-top: 15px;">
+            Made with 💜 by Rin
+        </p>
+    </div>
+
+    <script>
+        // Canvas setup for trails
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        
+        // === 8-BIT BACKGROUND ===
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        
+        // Stars
+        const stars = [];
+        for (let i = 0; i < 100; i++) {
+            stars.push({
+                x: Math.random() * 2000,
+                y: Math.random() * 1000,
+                size: Math.random() > 0.8 ? 3 : (Math.random() > 0.5 ? 2 : 1),
+                speed: 0.2 + Math.random() * 0.5,
+                twinkle: Math.random()
+            });
+        }
+        
+        function drawRetroBackground() {
+            const w = bgCanvas.width;
+            const h = bgCanvas.height;
+            
+            // Simple dark gradient background
+            const gradient = bgCtx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, '#0a0a15');
+            gradient.addColorStop(1, '#1a1a2e');
+            bgCtx.fillStyle = gradient;
+            bgCtx.fillRect(0, 0, w, h);
+            
+            // Just gentle twinkling stars
+            stars.forEach(star => {
+                const twinkle = Math.sin(Date.now() * 0.002 + star.twinkle * 10) * 0.5 + 0.5;
+                bgCtx.fillStyle = `rgba(255, 255, 255, ${0.2 + twinkle * 0.5})`;
+                bgCtx.fillRect(star.x % w, star.y % h, star.size, star.size);
+            });
+        }
+        
+        function animateBackground() {
+            drawRetroBackground();
+            requestAnimationFrame(animateBackground);
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        animateBackground();
+        
+        // === ANIMATED BACKGROUND ===
+        const bgThemes = {
+            stars: { emoji: '⭐', count: 30, speed: 0, twinkle: true },
+            snow: { emoji: '❄️', count: 40, speed: 15000, twinkle: false },
+            bubbles: { emoji: '🫧', count: 25, speed: 12000, twinkle: false },
+            hearts: { emoji: '💖', count: 20, speed: 18000, twinkle: false },
+            space: { emoji: '✨', count: 50, speed: 0, twinkle: true }
+        };
+        
+        let currentBg = 'stars';
+        let bgParticles = [];
+        
+        function createBgParticle(immediate = false) {
+            const theme = bgThemes[currentBg];
+            const particle = document.createElement('div');
+            particle.className = 'bg-particle';
+            particle.textContent = theme.emoji;
+            particle.style.fontSize = (15 + Math.random() * 25) + 'px';
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            
+            if (theme.twinkle) {
+                // Stationary twinkling
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                particle.style.animation = `twinkle ${2 + Math.random() * 3}s ease-in-out infinite`;
+                particle.style.animationDelay = Math.random() * 2 + 's';
+            } else {
+                // Falling
+                particle.style.top = immediate ? (Math.random() * window.innerHeight) + 'px' : '-30px';
+                particle.style.animation = `float-down ${theme.speed + Math.random() * 5000}ms linear forwards`;
+                particle.style.animationDelay = immediate ? '0s' : (Math.random() * 2) + 's';
+                
+                // Remove after animation
+                setTimeout(() => {
+                    particle.remove();
+                    createBgParticle(false);
+                }, theme.speed + 7000);
+            }
+            
+            document.body.appendChild(particle);
+            bgParticles.push(particle);
+        }
+        
+        function initBackground() {
+            // Clear existing
+            bgParticles.forEach(p => p.remove());
+            bgParticles = [];
+            
+            const theme = bgThemes[currentBg];
+            for (let i = 0; i < theme.count; i++) {
+                createBgParticle(true);
+            }
+        }
+        
+        function setBgTheme(theme) {
+            currentBg = theme;
+            initBackground();
+        }
+        
+        // Start with stars
+        initBackground();
+        
+        // State
+        let escCount = 0;
+        let escTimeout = null;
+        let keyCount = 0;
+        let clickCount = 0;
+        let sessionStart = Date.now();
+        let shapeSize = 120;
+        
+        // Themes
+        const themes = {
+            rainbow: ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd', '#ff9ff3', '#54a0ff'],
+            ocean: ['#0077b6', '#00b4d8', '#90e0ef', '#caf0f8', '#03045e', '#023e8a'],
+            forest: ['#2d6a4f', '#40916c', '#52b788', '#74c69d', '#95d5b2', '#b7e4c7'],
+            space: ['#7400b8', '#6930c3', '#5e60ce', '#5390d9', '#4ea8de', '#48bfe3'],
+            highcontrast: ['#ffffff', '#ffff00', '#00ffff', '#ff00ff', '#ff0000', '#00ff00']
+        };
+        
+        let currentTheme = 'rainbow';
+        let colors = themes.rainbow;
+        
+        // Shapes
+        const shapes = ['●', '■', '▲', '★', '♦', '♥', '♠', '♣', '◆', '○'];
+        
+        function getRandomColor() {
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function getRandomShape() {
+            return shapes[Math.floor(Math.random() * shapes.length)];
+        }
+        
+        // Create shape on keypress
+        function createShape(char, x, y) {
+            const shape = document.createElement('div');
+            shape.className = 'shape';
+            
+            const color = getRandomColor();
+            const size = shapeSize + Math.random() * 40 - 20;
+            const displayChar = char.length === 1 ? char.toUpperCase() : getRandomShape();
+            
+            shape.style.cssText = `
+                left: ${x - size/2}px;
+                top: ${y - size/2}px;
+                width: ${size}px;
+                height: ${size}px;
+                font-size: ${size * 0.6}px;
+                background: ${color};
+                border-radius: ${Math.random() > 0.5 ? '50%' : '15%'};
+                box-shadow: 0 0 ${size/2}px ${color}80;
+            `;
+            shape.textContent = displayChar;
+            
+            document.body.appendChild(shape);
+            
+            setTimeout(() => shape.remove(), 3000);
+            keyCount++;
+            updateStats();
+        }
+        
+        // Create particles on click
+        function createParticles(x, y) {
+            const count = 12;
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const color = getRandomColor();
+                const angle = (i / count) * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                const endX = x + Math.cos(angle) * distance;
+                const endY = y + Math.sin(angle) * distance;
+                
+                particle.style.cssText = `
+                    left: ${x - 10}px;
+                    top: ${y - 10}px;
+                    background: ${color};
+                    box-shadow: 0 0 10px ${color};
+                `;
+                
+                particle.animate([
+                    { left: `${x - 10}px`, top: `${y - 10}px`, transform: 'scale(1)', opacity: 1 },
+                    { left: `${endX - 10}px`, top: `${endY - 10}px`, transform: 'scale(0)', opacity: 0 }
+                ], {
+                    duration: 800,
+                    easing: 'ease-out'
+                });
+                
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+            clickCount++;
+            updateStats();
+        }
+        
+        // Mouse trail
+        let lastTrailTime = 0;
+        function createTrail(x, y) {
+            const now = Date.now();
+            if (now - lastTrailTime < 30) return;
+            lastTrailTime = now;
+            
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            
+            const color = getRandomColor();
+            trail.style.cssText = `
+                left: ${x - 15}px;
+                top: ${y - 15}px;
+                background: radial-gradient(circle, ${color}, transparent);
+            `;
+            
+            document.body.appendChild(trail);
+            setTimeout(() => trail.remove(), 500);
+        }
+        
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            e.preventDefault();
+            
+            if (e.key === 'Escape') {
+                handleEsc();
+                return;
+            }
+            
+            const x = Math.random() * (window.innerWidth - 200) + 100;
+            const y = Math.random() * (window.innerHeight - 200) + 100;
+            createShape(e.key, x, y);
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#settings') || e.target.closest('.fullscreen-btn')) return;
+            createParticles(e.clientX, e.clientY);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            createTrail(e.clientX, e.clientY);
+        });
+        
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('#settings') || e.target.closest('.fullscreen-btn')) return;
+            Array.from(e.touches).forEach(touch => {
+                createParticles(touch.clientX, touch.clientY);
+            });
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            Array.from(e.touches).forEach(touch => {
+                createTrail(touch.clientX, touch.clientY);
+            });
+        });
+        
+        // ESC handler
+        function handleEsc() {
+            escCount++;
+            document.getElementById('exit-progress').style.display = 'block';
+            document.getElementById('exit-progress').textContent = '⎋'.repeat(escCount);
+            
+            if (escTimeout) clearTimeout(escTimeout);
+            
+            if (escCount >= 3) {
+                openSettings();
+                escCount = 0;
+                document.getElementById('exit-progress').style.display = 'none';
+            } else {
+                escTimeout = setTimeout(() => {
+                    escCount = 0;
+                    document.getElementById('exit-progress').style.display = 'none';
+                }, 1000);
+            }
+        }
+        
+        // Settings
+        function openSettings() {
+            document.getElementById('settings').classList.add('active');
+            updateStats();
+        }
+        
+        function closeSettings() {
+            document.getElementById('settings').classList.remove('active');
+        }
+        
+        function setTheme(theme) {
+            currentTheme = theme;
+            colors = themes[theme];
+            
+            // Update background with animated gradients
+            const gradients = {
+                rainbow: 'linear-gradient(135deg, #1a1a2e, #2d1b4e, #1b2838, #1a1a2e)',
+                ocean: 'linear-gradient(135deg, #001d3d, #003566, #004e89, #001d3d)',
+                forest: 'linear-gradient(135deg, #1b4332, #2d5a45, #1b3a2a, #1b4332)',
+                space: 'linear-gradient(135deg, #0a0a1a, #1a0a2e, #0a1a2e, #0a0a1a)',
+                highcontrast: '#000000'
+            };
+            
+            document.body.style.background = gradients[theme];
+            if (theme !== 'highcontrast') {
+                document.body.style.backgroundSize = '400% 400%';
+                document.body.style.animation = 'gradient-shift 20s ease infinite';
+            } else {
+                document.body.style.animation = 'none';
+            }
+        }
+        
+        function setSize(size) {
+            shapeSize = size === 'small' ? 80 : size === 'large' ? 160 : 120;
+        }
+        
+        function updateStats() {
+            document.getElementById('key-count').textContent = keyCount;
+            document.getElementById('click-count').textContent = clickCount;
+            
+            const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('session-time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Update time every second
+        setInterval(updateStats, 1000);
+        
+        // === CUTE FRIEND ===
+        const friends = [
+            // Animals toddlers know
+            '🐶', '🐱', '🐰', '🐻', '🦁', '🐯', '🐮', '🐷', '🐸', '🐵',
+            '🐔', '🦆', '🦉', '🐝', '🦋', '🐢', '🐟', '🐬', '🦀', '🐙',
+            '🦖', '🦕', '🐘', '🦒', '🦓', '🐊',
+            // Vehicles
+            '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐',
+            '🚚', '🚛', '🚜', '✈️', '🚀', '🚁', '🚂', '🚢', '⛵',
+            // Fun objects
+            '⭐', '🌈', '🎈', '🎸', '⚽', '🏀', '🍎', '🍌', '🧸'
+        ];
+        const friend = document.getElementById('friend');
+        
+        function showFriend() {
+            friend.textContent = friends[Math.floor(Math.random() * friends.length)];
+            friend.style.left = Math.random() * (window.innerWidth - 100) + 'px';
+            friend.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+            friend.style.display = 'block';
+            friend.style.opacity = '1';
+            friend.style.transform = 'scale(1) rotate(0deg)';
+            
+            // Wiggle animation
+            let wiggle = 0;
+            const wiggleInterval = setInterval(() => {
+                wiggle += 1;
+                friend.style.transform = `scale(1) rotate(${Math.sin(wiggle * 0.5) * 15}deg)`;
+            }, 50);
+            
+            // Disappear after random time
+            setTimeout(() => {
+                clearInterval(wiggleInterval);
+                friend.style.opacity = '0';
+                friend.style.transform = 'scale(0) rotate(180deg)';
+                setTimeout(() => friend.style.display = 'none', 500);
+            }, 2000 + Math.random() * 3000);
+        }
+        
+        // Show friend randomly every 5-12 seconds
+        function scheduleFriend() {
+            setTimeout(() => {
+                showFriend();
+                scheduleFriend();
+            }, 5000 + Math.random() * 7000);
+        }
+        scheduleFriend();
+        // Show one right away!
+        setTimeout(showFriend, 1000);
+        // And another soon after
+        setTimeout(showFriend, 4000);
+        
+        // === SOUND EFFECTS ===
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = false;
+        
+        function playNote(frequency = 440) {
+            if (!soundEnabled) return;
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch(e) {}
+        }
+        
+        function playRandomNote() {
+            const notes = [261, 293, 329, 349, 392, 440, 493, 523]; // C major scale
+            playNote(notes[Math.floor(Math.random() * notes.length)]);
+        }
+        
+        // Enable sound on first interaction
+        document.addEventListener('click', () => {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            soundEnabled = document.getElementById('sound-select').value !== 'off';
+        }, { once: true });
+        
+        document.addEventListener('keydown', () => {
+            if (audioContext.state === 'suspended') audioContext.resume();
+            soundEnabled = document.getElementById('sound-select').value !== 'off';
+        }, { once: true });
+        
+        // Hook sound into shape creation
+        const originalCreateShape = createShape;
+        createShape = function(char, x, y) {
+            originalCreateShape(char, x, y);
+            if (document.getElementById('sound-select').value === 'notes') playRandomNote();
+            else if (document.getElementById('sound-select').value === 'pop') playNote(600 + Math.random() * 400);
+        };
+        
+        // === FULLSCREEN RECOVERY ===
+        const fullscreenNotice = document.getElementById('fullscreen-notice');
+        
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // Lost fullscreen - show recovery notice
+                fullscreenNotice.style.display = 'flex';
+            }
+        });
+        
+        fullscreenNotice.addEventListener('click', () => {
+            fullscreenNotice.style.display = 'none';
+            document.documentElement.requestFullscreen().catch(() => {});
+        });
+        
+        // Block some key combos (won't catch OS-level ones but helps)
+        document.addEventListener('keydown', (e) => {
+            // Block Cmd+Space, Cmd+Tab, etc when possible
+            if (e.metaKey || e.ctrlKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Still create a shape for the fun
+                const x = Math.random() * (window.innerWidth - 200) + 100;
+                const y = Math.random() * (window.innerHeight - 200) + 100;
+                createShape('⭐', x, y);
+                return false;
+            }
+        }, true);
+        
+        // Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Exit app
+        function exitApp() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            // Show goodbye, then let parent navigate away
+            document.body.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#1a1a2e; color:white; font-family:sans-serif; text-align:center; padding:20px;">
+                    <div style="font-size:60px; margin-bottom:20px;">👋</div>
+                    <h1 style="margin-bottom:10px;">Thanks for playing!</h1>
+                    <p style="color:#888; margin-bottom:30px;">Session: ${document.getElementById('key-count')?.textContent || 0} keys pressed</p>
+                    <p style="color:#666; font-size:14px;">You can close this tab or navigate away now.</p>
+                    <button onclick="location.reload()" style="margin-top:20px; padding:12px 24px; background:#7c3aed; border:none; color:white; border-radius:8px; cursor:pointer; font-size:16px;">Play Again</button>
+                </div>
+            `;
+        }
+        
+        // Prevent context menu
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Hide hint after first interaction
+        document.addEventListener('keydown', () => {
+            document.getElementById('exit-hint').style.opacity = '0';
+        }, { once: true });
+    </script>
+</body>
+</html>

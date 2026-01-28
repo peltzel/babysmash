@@ -1,0 +1,8 @@
+{
+  "name": "babysmash",
+  "version": "1.0.0",
+  "description": "A safe space for tiny fingers to smash",
+  "scripts": {
+    "start": "npx serve ."
+  }
+}

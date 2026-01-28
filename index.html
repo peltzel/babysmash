@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Smash — A safe space for tiny fingers</title>
+    
+    <!-- SEO & Social -->
+    <meta name="description" content="Every keypress creates colorful shapes. Random animals pop up. Nothing breaks, nothing exits. A digital pot and wooden spoon for your keyboard-obsessed baby.">
+    <meta name="keywords" content="baby app, toddler game, keyboard toy, baby smash, safe baby game">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Baby Smash — A safe space for tiny fingers">
+    <meta property="og:description" content="Every keypress creates colorful shapes. Random animals pop up. Nothing breaks. A digital pot and wooden spoon.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://babysmash.app">
+    <meta property="og:image" content="https://babysmash.app/og-image.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Baby Smash — A safe space for tiny fingers">
+    <meta name="twitter:description" content="Every keypress creates colorful shapes. Random animals pop up. Nothing breaks.">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👶</text></svg>">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #e4e4e4;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .hero-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .tagline {
+            font-size: 1.3rem;
+            color: #a0a0a0;
+            margin-bottom: 40px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 600;
+            padding: 20px 50px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 30px rgba(124, 58, 237, 0.5);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+            text-align: left;
+        }
+        
+        .feature {
+            background: rgba(255,255,255,0.05);
+            padding: 24px;
+            border-radius: 16px;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        
+        .feature h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .feature p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        .demo-section {
+            margin: 60px 0;
+        }
+        
+        .demo-placeholder {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 60px 20px;
+            border: 2px dashed rgba(255,255,255,0.1);
+        }
+        
+        .demo-placeholder p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .friends-parade {
+            font-size: 2.5rem;
+            margin: 40px 0;
+            letter-spacing: 8px;
+        }
+        
+        .honest-section {
+            background: rgba(255,255,255,0.03);
+            padding: 40px;
+            border-radius: 16px;
+            margin: 40px 0;
+        }
+        
+        .honest-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+        }
+        
+        .honest-section p {
+            color: #888;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .pro-tip {
+            background: rgba(124, 58, 237, 0.1);
+            border-left: 3px solid #7c3aed;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            text-align: left;
+            margin: 40px 0;
+        }
+        
+        .pro-tip strong {
+            color: #a78bfa;
+        }
+        
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        footer a {
+            color: #888;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            color: #a78bfa;
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .tagline { font-size: 1.1rem; }
+            .cta-button { font-size: 1.2rem; padding: 16px 36px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero-emoji">👶</div>
+        
+        <h1>Baby Smash</h1>
+        <p class="tagline">A safe space for tiny fingers to smash</p>
+        
+        <a href="app.html" class="cta-button">▶ Start Smashing</a>
+        
+        <div class="friends-parade">
+            🦖 🚒 🐶 🚀 🦋 🐘
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <h3>Every key = color explosion</h3>
+                <p>Big, bright shapes and letters appear with every smash</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🦁</div>
+                <h3>Surprise friends</h3>
+                <p>Random animals and vehicles pop up and wiggle</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Can't break anything</h3>
+                <p>No emails sent, no tabs closed, no escape (almost)</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📱</div>
+                <h3>Works everywhere</h3>
+                <p>Laptop, tablet, phone — any device, any browser</p>
+            </div>
+        </div>
+        
+        <div class="honest-section">
+            <h2>What this isn't</h2>
+            <p>It's not educational. It's not developmental. It's not screen time you need to justify. It's a digital pot and wooden spoon. Sometimes babies just want to smash things.</p>
+        </div>
+        
+        <div class="pro-tip">
+            <strong>💡 Pro tip:</strong> On iPad, turn on <strong>Guided Access</strong> (Settings → Accessibility → Guided Access) before handing it over. Triple-click to lock them in. Game changer for tiny escape artists.
+        </div>
+        
+        <a href="app.html" class="cta-button">▶ Start Smashing</a>
+        
+        <footer>
+            <p>Made by a dad whose kid kept closing his browser tabs</p>
+            <p style="margin-top: 10px;">
+                <a href="privacy.html">Privacy</a> · 
+                Free & open source · 
+                No ads (for now)
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

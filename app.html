@@ -4,6 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Baby Smash! 🎨</title>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-49W75QHWM2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-49W75QHWM2');
+      
+      // Track session start
+      gtag('event', 'session_start', { 'page': 'app' });
+      
+      // Track engagement milestones
+      let smashCount = 0;
+      let sessionStartTime = Date.now();
+      
+      function trackSmash() {
+        smashCount++;
+        // Track milestones: 10, 50, 100, 500 smashes
+        if ([10, 50, 100, 500].includes(smashCount)) {
+          gtag('event', 'smash_milestone', { 
+            'milestone': smashCount,
+            'time_elapsed_seconds': Math.round((Date.now() - sessionStartTime) / 1000)
+          });
+        }
+      }
+      
+      // Track session duration when leaving
+      window.addEventListener('beforeunload', function() {
+        const duration = Math.round((Date.now() - sessionStartTime) / 1000);
+        gtag('event', 'session_end', {
+          'duration_seconds': duration,
+          'total_smashes': smashCount
+        });
+      });
+    </script>
     <style>
         * {
             margin: 0;
@@ -719,12 +755,14 @@
             soundEnabled = document.getElementById('sound-select').value !== 'off';
         }, { once: true });
         
-        // Hook sound into shape creation
+        // Hook sound and analytics into shape creation
         const originalCreateShape = createShape;
         createShape = function(char, x, y) {
             originalCreateShape(char, x, y);
             if (document.getElementById('sound-select').value === 'notes') playRandomNote();
             else if (document.getElementById('sound-select').value === 'pop') playNote(600 + Math.random() * 400);
+            // Track for analytics
+            if (typeof trackSmash === 'function') trackSmash();
         };
         
         // === FULLSCREEN RECOVERY ===
